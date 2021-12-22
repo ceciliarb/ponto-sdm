@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://www.ca.com/UnicenterServicePlus/ServiceDesk">   
+    <soapenv:Header/>   
+    <soapenv:Body>      
+        <ser:login>         
+            <username>?</username>         
+            <password>?</password>      
+        </ser:login>   
+    </soapenv:Body>
+</soapenv:Envelope>
