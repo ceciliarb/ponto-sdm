@@ -70,9 +70,10 @@ func doGetHandleForUseridSdm(user, handle string) string {
 }
 
 // funcao que cria ticket no SDM
-// input: user (string) e pass (string)
-// output: handle (string)
+// input: handle, creatorHandle, description, status e summary (string)
+// output: idTicket (string)
 func doCreateRequestSdm(handle, creatorHandle, description, status, summary string) string {
+	idTicket := ""
 	createRequestReq := createRequestRequest{
 		Handle:        handle,
 		CreatorHandle: creatorHandle,
@@ -83,15 +84,17 @@ func doCreateRequestSdm(handle, creatorHandle, description, status, summary stri
 	request := prepareSoapRequest(createRequestReq, createRequestXml, "createRequest")
 	body := sendRequest(request)
 	response := getInnerTextFromTag(body, "createRequestResponse", "createRequestReturn")
-	idTicketArr := strings.Split(response, "</Handle>")
-	idTicketArr = strings.Split(idTicketArr[0], ":")
-	idTicket := idTicketArr[1]
+	if response != "" {
+		idTicketArr := strings.Split(response, "</Handle>")
+		idTicketArr = strings.Split(idTicketArr[0], ":")
+		idTicket = idTicketArr[1]
+	}
 	return idTicket
 }
 
 // funcao que muda status do ticket no SDM
-// input: user (string) e pass (string)
-// output: handle (string)
+// input: handle, objHandle, description e status (string)
+// output: response (string)
 func changeStatusSdm(handle, objHandle, description, status string) string {
 	changeStatusReq := changeStatusRequest{
 		Handle:       handle,
@@ -211,6 +214,17 @@ func getInnerTextFromTag(body []byte, parentTag, tag string) string {
 		panic(err)
 	}
 	channel := xmlquery.FindOne(rr, fmt.Sprintf("//%s", parentTag))
-	handle := channel.SelectElement(fmt.Sprintf("%s", tag)).InnerText()
-	return string(handle)
+	if channel != nil {
+		handle := channel.SelectElement(fmt.Sprintf("%s", tag)).InnerText()
+		if handle != "" {
+			return string(handle)
+		}
+	}
+	channel = xmlquery.FindOne(rr, "//soapenv:Fault")
+	if channel != nil {
+		code := channel.SelectElement("faultcode").InnerText()
+		str := channel.SelectElement("faultstring").InnerText()
+		fmt.Printf("%s >>> %s.\n", code, str)
+	}
+	return ""
 }

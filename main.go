@@ -18,22 +18,22 @@ var logFile *os.File
 // Em_execucao: WIP  | crs:5208
 // Paralisado:  PARL | crs:400053
 // Resolvido:   RE   | crs:5212
-var status = map[string]string{"Novo": "OP", "Em_Execucao": "WIP", "Paralisado": "PARL", "Resolvido": "RE"}
+var status = map[string]string{"Novo": "crs:5200", "Em_Execucao": "crs:5208", "Paralisado": "crs:400053", "Resolvido": "crs:5212"}
 
 func abrirJornada(handle, handleForUserid string) string {
 	now := time.Now()
 	data := fmt.Sprintf("%d/%d/%d", now.Day(), now.Month(), now.Year())
 	dthr := fmt.Sprintf("%d/%d/%d %d:%d", now.Day(), now.Month(), now.Year(), now.Hour(), now.Minute())
-	return doCreateRequestSdm(handle, handleForUserid, fmt.Sprintf("[Registro de ponto] %s", data), status["Em_Execucao"], fmt.Sprintf("Início da jornada: %s", dthr))
+	return doCreateRequestSdm(handle, handleForUserid, fmt.Sprintf("[Registro de ponto] %s", data), "WIP", fmt.Sprintf("Início da jornada: %s", dthr))
 }
 func paralisarJornada(handle, objHandle, dataHora string) string {
-	return changeStatusSdm(handle, objHandle, fmt.Sprintf("Paralisando jornada para almoço: %s", dataHora), "crs:400053")
+	return changeStatusSdm(handle, objHandle, fmt.Sprintf("Paralisando jornada para almoço: %s", dataHora), status["Paralisado"])
 }
 func retomarJornada(handle, objHandle, dataHora string) string {
-	return changeStatusSdm(handle, objHandle, fmt.Sprintf("Retornando do almoço: %s", dataHora), "crs:5208")
+	return changeStatusSdm(handle, objHandle, fmt.Sprintf("Retornando do almoço: %s", dataHora), status["Em_Execucao"])
 }
 func finalizarJornada(handle, objHandle, dataHora string) string {
-	return changeStatusSdm(handle, objHandle, fmt.Sprintf("Finalizando a jornada: %s", dataHora), "crs:5212")
+	return changeStatusSdm(handle, objHandle, fmt.Sprintf("Finalizando a jornada: %s", dataHora), status["Resolvido"])
 }
 
 func getObjHandle() string {
@@ -46,7 +46,8 @@ func getObjHandle() string {
 			if err == nil {
 				objHandle = fmt.Sprintf("cr:%s", ticket)
 			} else {
-				panic("É necessário enviar um idTicket, seja através da flag '-t' ou através do arquivo .idTicket .")
+				fmt.Println("É necessário enviar um idTicket, seja através da flag '-t' ou através do arquivo .idTicket .")
+				os.Exit(1)
 			}
 		}
 	}
@@ -59,9 +60,21 @@ func main() {
 	now := time.Now()
 	dataHora := fmt.Sprintf("%d/%d/%d %d:%d", now.Day(), now.Month(), now.Year(), now.Hour(), now.Minute())
 	objHandle := getObjHandle()
+	if pass == "" || pass == "-" {
+		fmt.Println("Password obrigatória para a execução.")
+		os.Exit(1)
+	}
 
 	handle := doLoginSdm(usu, pass)
+	if handle == "" {
+		fmt.Println("Login sem sucesso.")
+		os.Exit(1)
+	}
 	handleForUserid := doGetHandleForUseridSdm(usu, handle)
+	if handleForUserid == "" {
+		fmt.Println("handleForUserid sem sucesso.")
+		os.Exit(1)
+	}
 
 	switch action {
 	case "a", "A", "abrir":
@@ -77,9 +90,8 @@ func main() {
 		finalizarJornada(handle, objHandle, dataHora)
 	}
 
-	// doLogoutSdm(handle)
+	doLogoutSdm(handle)
 
-	fmt.Println()
 	fmt.Printf("\nhandle: %s", handle)
 	fmt.Printf("\nhandleForUserid: %s", handleForUserid)
 	fmt.Printf("\nticket: %s", idTicket)
