@@ -17,7 +17,7 @@
 
 ------------------ Parametros -----------------------------------------------------------------------
   -a string
-        alias para -action. (default "abrir")
+        alias para -action.
   -action string
         Especifique uma ação ('abrir', 'paralisar', 'retormar', 'finalizar'). (default "abrir")
   -id-ticket string
@@ -26,7 +26,7 @@
   -log
         Se estiver presente, armazena log das operações.
   -p string
-        alias para -password (default "ceci")
+        alias para -password.
   -password string
         Especifique uma senha. (default "-")
   -ref-num-ticket string
@@ -40,7 +40,7 @@
   -t string
         alias para -id-ticket.
   -u string
-        alias para -username (default "ceci")
+        alias para -username
   -username string
         Especifique um username. (default "ceci")
 
