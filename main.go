@@ -8,7 +8,6 @@ import (
 
 const (
 	wsUrl = "https://servicedesk.pbh.gov.br./axis/services/USD_R11_WebService"
-	// wsUrl = "http://vwcpcasdm1.pbh.rmi:8080/axis/services/USD_R11_WebService"
 )
 
 var usu, pass, server, action, idTicket, refNumTicket, dirConf string

@@ -34,9 +34,9 @@
   -rnt string
         alias para -ref-num-ticket.
   -s string
-        alias para -server. (default "https://servicedesk.pbh.gov.br./axis/services/USD_R11_WebService")
+        alias para -server.
   -server string
-        Especifique um servidor. (default "https://servicedesk.pbh.gov.br./axis/services/USD_R11_WebService")
+        Especifique um servidor.
   -t string
         alias para -id-ticket.
   -u string
