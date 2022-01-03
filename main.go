@@ -22,8 +22,8 @@ var status = map[string]string{"Novo": "crs:5200", "Em_Execucao": "crs:5208", "P
 
 func abrirJornada(handle, handleForUserid string) string {
 	now := time.Now()
-	data := fmt.Sprintf("%d/%d/%d", now.Day(), now.Month(), now.Year())
-	dthr := fmt.Sprintf("%d/%d/%d %d:%d", now.Day(), now.Month(), now.Year(), now.Hour(), now.Minute())
+	data := fmt.Sprintf("%02d/%02d/%04d", now.Day(), now.Month(), now.Year())
+	dthr := fmt.Sprintf("%02d/%02d/%04d %02d:%02d:%02d", now.Day(), now.Month(), now.Year(), now.Hour(), now.Minute(), now.Second())
 	return doCreateRequestSdm(handle, handleForUserid, fmt.Sprintf("Início da jornada: %s", dthr), "WIP", fmt.Sprintf("[Registro de ponto] %s", data))
 }
 func paralisarJornada(handle, objHandle, dataHora string) string {
@@ -60,7 +60,7 @@ func getObjHandle(handle string) string {
 func main() {
 	usu, pass, server, action, idTicket, refNumTicket, logFile = readArgs()
 	now := time.Now()
-	dataHora := fmt.Sprintf("%d/%d/%d %d:%d", now.Day(), now.Month(), now.Year(), now.Hour(), now.Minute())
+	dataHora := fmt.Sprintf("%02d/%02d/%04d %02d:%02d:%02d", now.Day(), now.Month(), now.Year(), now.Hour(), now.Minute(), now.Second())
 	if pass == "" || pass == "-" {
 		fmt.Println("Password obrigatória para a execução.")
 		os.Exit(1)
@@ -95,10 +95,11 @@ func main() {
 	doLogoutSdm(handle)
 
 	fmt.Printf("%s", dataHora)
-	fmt.Printf("\nhandle: %s", handle)
-	fmt.Printf("\nhandleForUserid: %s", handleForUserid)
-	fmt.Printf("\nobjHandle: %s", objHandle)
-	fmt.Printf("\nticket: %s", idTicket)
+	fmt.Printf("\nlogin handle (sid): %s", handle)
+	fmt.Printf("\nuser handle (handleForUserid): %s", handleForUserid)
+	fmt.Printf("\nticket handle (objHandle): %s", objHandle)
+	fmt.Printf("\nticket id: %s", idTicket)
+	fmt.Printf("\nticket ref_num: %s", refNumTicket)
 	fmt.Println()
 	if logFile != nil {
 		logFile.Close()
