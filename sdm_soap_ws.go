@@ -37,6 +37,11 @@ type changeStatusRequest struct {
 	Desc         string
 }
 
+type doSelectIdTicketRequest struct {
+	Handle string
+	RefNum string
+}
+
 type logoutRequest struct {
 	Handle string
 }
@@ -69,6 +74,27 @@ func doGetHandleForUseridSdm(user, handle string) string {
 	return handleForUserid
 }
 
+// funcao que recupera id do ticket a partir do seu numero (ref_num) no SDM
+// input: user (string) e ref_num (string)
+// output: idTicket (string)
+func doGetIdTicketByRefNumSdm(handle, ref_num string) string {
+	doGetIdTicketByRefNumReq := doSelectIdTicketRequest{
+		Handle: handle,
+		RefNum: ref_num,
+	}
+	request := prepareSoapRequest(doGetIdTicketByRefNumReq, doSelectIdTicketXml, "doSelectIdTicket")
+	body := sendRequest(request)
+	response := getInnerTextFromTag(body, "doSelectResponse", "doSelectReturn")
+	if response != "" {
+		idTicketArr := strings.Split(response, "</Handle>")
+		if len(idTicketArr) > 1 {
+			idTicketArr = strings.Split(idTicketArr[0], ":")
+			idTicket = idTicketArr[1]
+		}
+	}
+	return idTicket
+}
+
 // funcao que cria ticket no SDM
 // input: handle, creatorHandle, description, status e summary (string)
 // output: idTicket (string)
@@ -86,8 +112,10 @@ func doCreateRequestSdm(handle, creatorHandle, description, status, summary stri
 	response := getInnerTextFromTag(body, "createRequestResponse", "createRequestReturn")
 	if response != "" {
 		idTicketArr := strings.Split(response, "</Handle>")
-		idTicketArr = strings.Split(idTicketArr[0], ":")
-		idTicket = idTicketArr[1]
+		if len(idTicketArr) > 1 {
+			idTicketArr = strings.Split(idTicketArr[0], ":")
+			idTicket = idTicketArr[1]
+		}
 	}
 	return idTicket
 }

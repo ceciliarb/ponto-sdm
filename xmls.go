@@ -112,6 +112,27 @@ var doSelectStatus = `<?xml version='1.0' encoding='UTF-8'?>
    </soapenv:Body>
 </soapenv:Envelope>`
 
+var doSelectIdTicketXml = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://www.ca.com/UnicenterServicePlus/ServiceDesk">
+<soapenv:Header/>
+<soapenv:Body>
+   <ser:doSelect>
+      <sid>{{.Handle}}</sid>
+      <objectType>cr</objectType>
+      <whereClause>ref_num='{{.RefNum}}'</whereClause>
+      <maxRows>1</maxRows>
+      <attributes>
+         <!--1 or more repetitions:-->
+         <string>id</string>
+         <string>category</string>
+         <string>summary</string>
+         <string>description</string>
+         <string>requested_by</string>
+         <string>ref_num</string>
+      </attributes>
+   </ser:doSelect>
+</soapenv:Body>
+</soapenv:Envelope>`
+
 var changeStatusXml = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="http://www.ca.com/UnicenterServicePlus/ServiceDesk">
    <soapenv:Header/>
    <soapenv:Body>
