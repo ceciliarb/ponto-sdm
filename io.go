@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"os/user"
 	"time"
 )
@@ -21,7 +22,7 @@ func printUsage() {
 	fmt.Printf("./ponto-sdm --u username --p senha --l --action retomar \n")
 	fmt.Printf("./ponto-sdm --u username --p senha --l --action f \n")
 	fmt.Printf("./ponto-sdm --u username --p senha --l --action F --id-ticket 2455454 \n")
-	fmt.Printf("./ponto-sdm --u username --p senha --l --action finalizar --num-ref-ticket 934850 \n")
+	fmt.Printf("./ponto-sdm --u username --p senha --l --action finalizar --num-ref-ticket 934850 -n \n")
 	fmt.Printf("\n")
 	fmt.Printf("------------------ Parametros -----------------------------------------------------------------------\n")
 	flag.PrintDefaults() // prints default usage
@@ -29,7 +30,7 @@ func printUsage() {
 
 func readArgs() (uname, pass, server, action, idTicket, refNumTicket string, logFile *os.File) {
 	// variables declaration
-	var bLog bool
+	var bLog, bNotify bool
 	var defaultUname string
 	defaultUser, err := user.Current()
 	if err != nil {
@@ -52,6 +53,8 @@ func readArgs() (uname, pass, server, action, idTicket, refNumTicket string, log
 	flag.StringVar(&refNumTicket, "rnt", refNumTicket, "alias para -ref-num-ticket.")
 	flag.BoolVar(&bLog, "log", false, "Se estiver presente, armazena log das operações.")
 	flag.BoolVar(&bLog, "l", bLog, "alias para -log.")
+	flag.BoolVar(&bNotify, "notify", false, "Se estiver presente, agenda notificação com 'at' e 'notify-send'.")
+	flag.BoolVar(&bNotify, "n", bLog, "alias para -notify.")
 
 	flag.Usage = printUsage
 
@@ -66,17 +69,33 @@ func readArgs() (uname, pass, server, action, idTicket, refNumTicket string, log
 		}
 	}
 
+	now := time.Now()
 	if bLog {
 		logFile, err = os.OpenFile(fmt.Sprintf("%s/sdm.log", dirConf), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			log.Fatalf("error opening file: %v", err)
 		} else {
-			now := time.Now()
 			logFile.WriteString(fmt.Sprintf("\nLOG: %d/%d/%d %d:%d\n", now.Day(), now.Month(), now.Year(), now.Hour(), now.Minute()))
 		}
 	} else {
 		logFile = nil
 	}
 
+	if bNotify {
+		notifyCmd := ""
+		switch action {
+		case "a", "A", "abrir", "":
+			notifyCmd = fmt.Sprintf(`at now + 9 hours <<EOF
+notify-send 'Ponto SDM' 'Não se esqueça de fechar a jornada!'
+EOF`)
+
+		case "p", "P", "paralisar":
+			notifyCmd = fmt.Sprintf(`at now + 55 minutes <<EOF
+notify-send 'Ponto SDM' 'Não se esqueça de bater o retorno do almoço!'
+EOF`)
+		}
+
+		exec.Command(notifyCmd)
+	}
 	return
 }

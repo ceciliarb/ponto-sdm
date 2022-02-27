@@ -25,6 +25,9 @@
   -l    alias para -log.
   -log
         Se estiver presente, armazena log das operações.
+  -n    alias para -notify.
+  -notify
+        Se estiver presente, agenda notificação com 'at' e 'notify-send'.
   -p string
         alias para -password.
   -password string
