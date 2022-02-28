@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"runtime"
 	"time"
 )
 
@@ -53,7 +54,7 @@ func readArgs() (uname, pass, server, action, idTicket, refNumTicket string, log
 	flag.StringVar(&refNumTicket, "rnt", refNumTicket, "alias para -ref-num-ticket.")
 	flag.BoolVar(&bLog, "log", false, "Se estiver presente, armazena log das operações.")
 	flag.BoolVar(&bLog, "l", bLog, "alias para -log.")
-	flag.BoolVar(&bNotify, "notify", false, "Se estiver presente, agenda notificação com 'at' e 'notify-send'.")
+	flag.BoolVar(&bNotify, "notify", false, "Se estiver presente, agenda notificação com 'at' e 'notify-send'.\n(Somente para Linux e se as dependêcias ('at' e 'notify-send') estiverem instaladas)")
 	flag.BoolVar(&bNotify, "n", bLog, "alias para -notify.")
 
 	flag.Usage = printUsage
@@ -81,7 +82,8 @@ func readArgs() (uname, pass, server, action, idTicket, refNumTicket string, log
 		logFile = nil
 	}
 
-	if bNotify {
+	osname := runtime.GOOS
+	if bNotify && osname == "linux" {
 		var cmd *exec.Cmd
 		notifyCmdA := fmt.Sprintf("\"notify-send -u critical -i clock 'Ponto SDM' 'Não se esqueça de fechar a jornada! Ponto batido em %02d:%02d:%02d'\"", now.Hour(), now.Minute(), now.Second())
 		notifyCmdP := fmt.Sprintf("\"notify-send -u critical -i clock 'Ponto SDM' 'Não se esqueça de bater o retorno do almoço! Ponto batido em %02d:%02d:%02d'\"", now.Hour(), now.Minute(), now.Second())
@@ -96,9 +98,11 @@ func readArgs() (uname, pass, server, action, idTicket, refNumTicket string, log
 		case "teste":
 			cmd = exec.Command("bash", "-c", fmt.Sprintf("echo %s | at now +1 minutes", notifyCmdP))
 		}
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		_ = cmd.Run()
+		if cmd != nil {
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			_ = cmd.Run()
+		}
 
 	}
 	return

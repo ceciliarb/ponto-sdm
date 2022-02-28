@@ -28,6 +28,7 @@
   -n    alias para -notify.
   -notify
         Se estiver presente, agenda notificação com 'at' e 'notify-send'.
+	  (Somente para Linux e se as dependêcias ('at' e 'notify-send') estiverem instaladas)
   -p string
         alias para -password.
   -password string
