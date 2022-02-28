@@ -89,6 +89,8 @@ func main() {
 		retomarJornada(handle, objHandle, dataHora)
 	case "f", "F", "finalizar":
 		finalizarJornada(handle, objHandle, dataHora)
+	case "teste":
+		fmt.Printf("\n-------------------TESTE ---------------------\n")
 	}
 
 	doLogoutSdm(handle)

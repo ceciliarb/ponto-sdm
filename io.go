@@ -82,20 +82,24 @@ func readArgs() (uname, pass, server, action, idTicket, refNumTicket string, log
 	}
 
 	if bNotify {
-		notifyCmd := ""
+		var cmd *exec.Cmd
+		notifyCmdA := fmt.Sprintf("\"notify-send -u critical -i clock 'Ponto SDM' 'Não se esqueça de fechar a jornada! Ponto batido em %02d:%02d:%02d'\"", now.Hour(), now.Minute(), now.Second())
+		notifyCmdP := fmt.Sprintf("\"notify-send -u critical -i clock 'Ponto SDM' 'Não se esqueça de bater o retorno do almoço! Ponto batido em %02d:%02d:%02d'\"", now.Hour(), now.Minute(), now.Second())
+
 		switch action {
 		case "a", "A", "abrir", "":
-			notifyCmd = fmt.Sprintf(`at now + 9 hours <<EOF
-notify-send 'Ponto SDM' 'Não se esqueça de fechar a jornada!'
-EOF`)
+			cmd = exec.Command("bash", "-c", fmt.Sprintf("echo %s | at now +9 hours", notifyCmdA))
 
 		case "p", "P", "paralisar":
-			notifyCmd = fmt.Sprintf(`at now + 55 minutes <<EOF
-notify-send 'Ponto SDM' 'Não se esqueça de bater o retorno do almoço!'
-EOF`)
-		}
+			cmd = exec.Command("bash", "-c", fmt.Sprintf("echo %s | at now +55 minutes", notifyCmdP))
 
-		exec.Command(notifyCmd)
+		case "teste":
+			cmd = exec.Command("bash", "-c", fmt.Sprintf("echo %s | at now +1 minutes", notifyCmdP))
+		}
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		_ = cmd.Run()
+
 	}
 	return
 }
